@@ -1,2 +1,2 @@
 # SmithChartPy
-RF Engineering Tool: Smith Chart Plotting and Matching Program
+RF Engineering Tool: A Smith Chart Plotting and Matching Program
