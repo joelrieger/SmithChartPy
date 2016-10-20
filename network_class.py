@@ -3,7 +3,7 @@ Author: Joel Rieger
 
 October 29, 2016
 
-Description: Classes and functions to perform basic network abstraction and plotting.
+Description: Classes and functions to perform basic network abstraction and plotting
 """
 
 from numpy import pi as pi
@@ -12,8 +12,8 @@ class network(object):
     """Class for one dimension network (i.e. a matching network)."""
     element_array=[]
 
-    def __init__(self,*args):
-        pass
+    #def __init__(self,*args):
+    #    pass
     
     def compute_node_impedances(self,Zp2,freq):
         """Calculate impedances at each node walking back from the output impedance, Zp2"""
@@ -50,27 +50,53 @@ class element(object):
 class cap(element):
     """Modification of element class to model an ideal capacitor"""
     
+    def __init__(self,*args):
+        if len(args)!=1:
+            print "ERROR: cap(element) requires 1 argument"
+        else:
+            self.val['C']=args[0]
+        
     Zfunc=lambda self,freq: 1.0j/(2*pi*freq*self.val['C']) #function to define series impedance
     Yfunc=lambda self,freq: (2*pi*freq*self.val['C']) #function to define admittance
 
 
 class ind(element):
     """Modification of element class to model an ideal capacitor"""
-
+    
+    def __init__(self,*args):
+        if len(args)!=1:
+            print "ERROR: ind(element) requires 1 argument"
+        else:
+            self.val['L']=args[0]
+            
     Zfunc=lambda self,freq: 2*pi*freq*self.val['L']*1j #function to define series impedance
     Yfunc=lambda self,freq: 1.0j/(2*pi*freq*self.val['L']) #function to define admittance
 
 
 class indQ(element):
     """Modification of element class to model an capacitor with a fixed Q"""
-    
+
+    def __init__(self,*args):
+        if len(args)!=2:
+            print "ERROR: indQ(element) requires 2 arguments"
+        else:
+            self.val['C']=args[0]
+            self.val['Q']=args[1]
+            
     Zfunc=lambda self,freq: 2*pi*freq*self.val['L']/self.val['Q']+2*pi*freq*self.val['L']*1j #function to define series impedance
     Yfunc=lambda self,freq: 1.0j/self.Zfunc(self,x) #function to define admittance
 
 
 class capQ(element):
     """Modification of element class to model an capacitor with a fixed L"""
- 
+
+    def __init__(self,*args):
+        if len(args)!=2:
+            print "ERROR: capQ(element) requires 2 arguments"
+        else:
+            self.val['C']=args[0]
+            self.val['Q']=args[1]
+            
     Zfunc=lambda self,freq: 1e-12 #function to define series impedance
     Yfunc=lambda self,freq: 1.0/self.Zfunc(self,x) #function to define admittance
 
@@ -79,11 +105,9 @@ if __name__=='__main__':
 
     net=network()
     
-    L1=ind()
-    L1.val['L']=1.9e-9
+    L1=ind(1e-9)
     print L1.Z(2.0e9)
     
-    L2=indQ()
-    L2.val={'L':1.9e-9,'Q':30.0}
+    L2=indQ(1e-9,35)
     print L2.Z(2.0e9)
     
