@@ -21,7 +21,6 @@ def GammatoZ(Gamma,Z0=50.0):
 
 
 def PlotSmith(plt):
-    #plt.figure(figsize=(6,6))
     plt.axes().set_aspect('equal')
     for R in [0.0,0.3,1.0,3.0]:
         Y=[]
