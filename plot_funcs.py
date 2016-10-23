@@ -21,7 +21,7 @@ def GammatoZ(Gamma,Z0=50.0):
 
 
 def PlotSmith(plt):
-    plt.axes().set_aspect('equal')
+    #plt.axes().set_aspect('equal')
     for R in [0.0,0.3,1.0,3.0]:
         Y=[]
         for x in SSS(-50,50,0.05):

@@ -1,5 +1,5 @@
 from plot_funcs import *
-from network_classes import *
+from network_class import *
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -17,9 +17,10 @@ else:
     import tkinter as Tk
 
 root = Tk.Tk()
-root.wm_title("Embedding in TK")
+root.wm_title("SmithChartPy: RF Matching Tool")
 
-fig = Figure(figsize=(8, 8), dpi=100)
+figsize=4.5
+fig = Figure(figsize=(figsize,figsize), dpi=100)#, aspect='equal'
 fig.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.99)
 mainplot = fig.add_subplot(111,aspect=1)
 
