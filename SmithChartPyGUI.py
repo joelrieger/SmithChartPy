@@ -19,20 +19,15 @@ else:
 root = Tk.Tk()
 root.wm_title("Embedding in TK")
 
-
 fig = Figure(figsize=(8, 8), dpi=100)
 fig.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.99)
 mainplot = fig.add_subplot(111,aspect=1)
-#t = arange(0.0, 3.0, 0.01)
-#s = sin(2*pi*t)
 
 PlotSmith(mainplot)
-#mainplot.plot(t, s)
 
 def _quit():
-    root.quit()     # stops mainloop
-    root.destroy()  # this is necessary on Windows to prevent
-                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+    root.quit()  
+    root.destroy()
 
 #PALETTE FRAME
 Palette = Tk.Frame(root)
