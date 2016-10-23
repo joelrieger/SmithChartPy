@@ -34,10 +34,34 @@ def _quit():
     root.destroy()  # this is necessary on Windows to prevent
                     # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
-pltcanvas = FigureCanvasTkAgg(fig, master=root)
+#PALETTE FRAME
+Palette = Tk.Frame(root)
+Palette.grid(row=1,column=0,sticky=Tk.N)
+button1=Tk.Button(Palette,text="SeriesC")
+button1.grid(row=0,column=0)
+button1=Tk.Button(Palette,text="ShuntC")
+button1.grid(row=0,column=1)
+button1=Tk.Button(Palette,text="SeriesL")
+button1.grid(row=1,column=0)
+button1=Tk.Button(Palette,text="SeriesL")
+button1.grid(row=1,column=1)
+entry1=Tk.Entry(Palette,width=5)
+entry1.grid(row=2,column=0)
+
+#PLOT FRAME
+PlotFrame = Tk.Frame(root)
+PlotFrame.grid(row=1,column=1)
+pltcanvas = FigureCanvasTkAgg(fig, master=PlotFrame)
 pltcanvas.get_tk_widget().grid(row=1,column=1)
-plttoolbar = NavigationToolbar2TkAgg(pltcanvas, root)
-plttoolbar.grid(row=2,column=1,sticky=Tk.W)
+#NavigationToolbar2TkAgg uses pack internally, so grid cannot be used
+#Frame used to get around this.
+NavBarFrame=Tk.Frame(root)
+NavBarFrame.grid(row=2,column=1,sticky=Tk.W)
+plttoolbar = NavigationToolbar2TkAgg(pltcanvas, NavBarFrame)
+plttoolbar.pack()
+
+#SCHEMATIC FRAME
+
 
 #########################
 net=network()
@@ -74,5 +98,3 @@ for i in range(len(nodeZ)):
 ##########################
     
 Tk.mainloop()
-# If you put root.destroy() here, it will cause an error if
-# the window is closed with the window manager.
