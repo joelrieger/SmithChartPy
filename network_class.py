@@ -28,6 +28,7 @@ class network(object):
             elif elem.orientation==1: #shunt
                 Zarr.append(1.0/(1.0/Zarr[-1]+elem.Y(freq)))
 
+        #Zarr.reverse()
         return Zarr
 
     def print_net(self):
@@ -79,15 +80,15 @@ class cap(element):
         else:
             self.val['C']=args[0]
 
-        self.Zfunc=lambda self,freq: 1j/(2*pi*freq*self.val['C']) #function to define series impedance
+        #self.Zfunc=lambda self,freq: 1j/(2*pi*freq*self.val['C']) #function to define series impedance
         self.Yfunc=lambda self,freq: (1j*2*pi*freq*self.val['C']) #function to define admittance
-
+        self.Zfunc=lambda self,freq: 1.0/self.Yfunc(self,freq)
 
 class ind(element):
     """Modification of element class to model an ideal capacitor"""
 
     def __init__(self,*args,**kargs):
-        element.__init__(self)
+        element.__init__(self,*args,**kargs)
         self.name='ind'
 
         if len(args)!=1:
@@ -96,8 +97,8 @@ class ind(element):
             self.val['L']=args[0]
 
         self.Zfunc=lambda self,freq: 1j*2*pi*freq*self.val['L'] #function to define series impedance
-        self.Yfunc=lambda self,freq: 1.0j/(2*pi*freq*self.val['L']) #function to define admittance
-
+        #self.Yfunc=lambda self,freq: 1.0/(2*pi*freq*self.val['L']) #function to define admittance
+        self.Yfunc=lambda self,freq: 1.0/self.Zfunc(self,freq)
 
 class indQ(element):
     """Modification of element class to model an capacitor with a fixed Q"""
@@ -153,6 +154,6 @@ if __name__=='__main__':
     net.element_array.append(C1)
     net.element_array.append(L1)
 
-    print net.compute_node_impedances(2.0e9)
+    #print net.compute_node_impedances(2.0e9)
     
     
