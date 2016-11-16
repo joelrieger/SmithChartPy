@@ -1,21 +1,16 @@
 from plot_funcs import *
+from canvas_slider import *
 from network_classes import *
 
 import matplotlib
 matplotlib.use('TkAgg')
 
 from numpy import arange, sin, pi
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-# implement the default mpl key bindings
-from matplotlib.backend_bases import key_press_handler
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg#, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
-import sys
-if sys.version_info[0] < 3:
-    import Tkinter as Tk
-else:
-    import tkinter as Tk
-
+import Tkinter as Tk
+             
 class SchematicFrame(Tk.Frame):
     def im_reorder(self,event,old,new):
         self.canvas1.move(self.item_arr[new], (old-new)*self.im_x_size, 0)
@@ -84,7 +79,6 @@ class SchematicFrame(Tk.Frame):
 
         self.Match=[]
         for elem in self.net.element_array:
-            print "debug", elem.val, elem.orientation 
             if elem.name == 'cap':
                 if elem.orientation==1:
                     self.Match.append({'type':self.CapIconSh})
@@ -108,8 +102,10 @@ class SchematicFrame(Tk.Frame):
     def update_icons(self):
         pass 
 
-
     def __init__(self,parent,network,draw_plot):
+        Tk.Frame.__init__(self,parent)
+        self.parent=parent
+        
         self.net=network
         self.draw_plot=draw_plot
         self.Match=[]
@@ -122,10 +118,7 @@ class SchematicFrame(Tk.Frame):
         self.image_selection=0
 
         self.item_arr=[] #contains canvas item index
-        
-        self.parent=parent
-        Tk.Frame.__init__(self,parent)
-        
+
         self.canvas1 = Tk.Canvas(parent,width=850, height=150)#,scrollregion=(0,0,1000,150)
         self.canvas1.grid(row=3,column=0,columnspan=3,sticky=Tk.W)
         self.canvas1.configure(background='white')
@@ -142,7 +135,6 @@ class SchematicFrame(Tk.Frame):
 
 
 class MainWindow(Tk.Frame):
-    
     def __init__(self,parent):
         Tk.Frame.__init__(self,parent)
         fig = Figure(figsize=(7, 7), dpi=100)
@@ -153,6 +145,8 @@ class MainWindow(Tk.Frame):
         self.dots=[]
         
         PlotSmith(self.mainplot)
+
+        parent.bind('<Up>',self.test)
         
         #fig.draw(0)
         
@@ -174,6 +168,12 @@ class MainWindow(Tk.Frame):
         button1.grid(row=1,column=0)
         button1=Tk.Button(Palette,text="ShuntL", command=self.add_shunt_l)
         button1.grid(row=1,column=1)
+
+        a=Tk.Canvas(Palette,width=50)
+        a.grid(row=2,column=0,columnspan=2,sticky=Tk.N+Tk.W)
+        b=SliderFrame(a)
+        #b.grid(row=2,column=0)
+        
         entry1=Tk.Entry(Palette,width=5)
         entry1.grid(row=2,column=0,sticky=Tk.S)
 
@@ -182,7 +182,9 @@ class MainWindow(Tk.Frame):
         CmpCntrl.grid(row=1,column=0,sticky=Tk.S)
         button1=Tk.Button(CmpCntrl,text="Delete",command=self.delete_element)
         button1.grid(row=0,column=0)
-
+        button1=Tk.Button(CmpCntrl,text="Edit",command=self.edit_element)
+        button1.grid(row=0,column=1)
+        
         #PLOT FRAME
         PlotFrame = Tk.Frame(root)
         PlotFrame.grid(row=1,column=1)
@@ -202,8 +204,6 @@ class MainWindow(Tk.Frame):
         C1=cap(6.3e-12,shunt=1)    
         L2=ind(2.0e-9)
         C2=cap(1.6e-12,shunt=1)
-
-        #C3=cap(5e-12)
         L3=ind(5e-9,shunt=1)
 
         self.net.element_array.append(C2)
@@ -226,13 +226,18 @@ class MainWindow(Tk.Frame):
         #self.center_freq=2.0e9
         self.draw_plot()
 
+    def test(self,event):
+        print "OK"
+        
+    def edit_element(self):
+        pass
+
     def delete_element(self):
         n=self.Schem.image_selection
         self.net.element_array.pop(n)
 
         self.Schem.draw_schematic()
         self.draw_plot()
-        
         
     def add_shunt_c(self):
         C=cap(1.0e-12,shunt=1)
