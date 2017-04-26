@@ -1,6 +1,7 @@
 from plot_funcs import *
 from canvas_slider import *
 from network_class import *
+from schematic_frame import *
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -10,136 +11,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg#, NavigationTool
 from matplotlib.figure import Figure
 
 import Tkinter as Tk
-             
-class SchematicFrame(Tk.Frame):
-    def im_reorder(self,event,old,new):
-        self.canvas1.move(self.item_arr[new], (old-new)*self.im_x_size, 0)
-
-        self.item_arr[old], self.item_arr[new] = self.item_arr[new], self.item_arr[old]
-        self.net.element_array[old], self.net.element_array[new] = self.net.element_array[new], self.net.element_array[old]
-        
-        self.image_selection=new
-        self.draw_plot()
-
-    def down_click(self,event):
-        self.image_selection=int(event.x/self.im_x_size)
-        print "down_click, ", self.image_selection
-
-        #TODO
-        #1) Up-Date Slider, Min, Max, Cur, Unit, Step, etc.
-        #2) 
-
-        self.canvas1.delete(self.box)
-        self.draw_box(self.canvas1,self.image_selection)#event.x/self.im_x_size)
-
-
-
-
-    def follow_mouse(self,event):
-        new_x, new_y = event.x, event.y
-        old_x, old_y = self.canvas1.coords(self.item_arr[self.image_selection])
-
-        num_items=len(self.item_arr)        
-        position_num=int(new_x/self.im_x_size)
-
-        #Move image to follow mouse
-        if ((new_x>0)&(new_x<self.im_x_size*num_items)):
-            self.canvas1.move(self.item_arr[self.image_selection], new_x-old_x, new_y-old_y)
-            self.drag=True
-        else:
-            pass
-            #reposition image -- but now this will fail
-
-        #Dynamically move icons while dragging
-        if ((position_num<num_items)&(new_x>0.0)&(old_x<num_items*self.im_x_size)): #Only if move if within region of circuit
-            if int(new_x/self.im_x_size) != int(old_x/self.im_x_size):
-                self.im_reorder(event,int(old_x/self.im_x_size),int(new_x/self.im_x_size))
-                item_n=int(new_x/self.im_x_size)
-
-    def draw_box(self,canvas,n):
-        w=2        
-        self.box = canvas.create_rectangle((n)*self.im_x_size+w, 2*w ,(n+1)*self.im_x_size-w/2, self.im_y_size-w/2,
-                                           width=w,dash='.')
-        canvas.tag_raise(self.box)
-
-    def reposition_image(self,event):
-        new_x, new_y = event.x, event.y
-        
-        position_num=int(new_x/self.im_x_size)
-        if (self.drag==True&(position_num<=len(self.item_arr))&(new_x>0.0)):
-            self.canvas1.move(self.item_arr[int(new_x/self.im_x_size)],
-                              -new_x%self.im_x_size-0.5*self.im_x_size,
-                              -new_y+0.5*self.im_y_size)
-        self.drag=False
-
-    def draw_schematic(self):
-        capse = "icons/C.gif"
-        capsh = "icons/Csh.gif"
-        self.CapIconSe = Tk.PhotoImage(file=capse)
-        self.CapIconSh = Tk.PhotoImage(file=capsh)
-
-        indse = "icons/Lse.gif"
-        indsh = "icons/Lsh.gif"
-        self.IndIconSe = Tk.PhotoImage(file=indse)
-        self.IndIconSh = Tk.PhotoImage(file=indsh)
-
-        self.Match=[]
-        for elem in self.net.element_array:
-            if elem.name == 'cap':
-                if elem.orientation==1:
-                    self.Match.append({'type':self.CapIconSh})
-                elif elem.orientation==0:
-                    self.Match.append({'type':self.CapIconSe})
-            elif elem.name =='ind':
-                if elem.orientation==1:
-                    self.Match.append({'type':self.IndIconSh})
-                elif elem.orientation==0:
-                    self.Match.append({'type':self.IndIconSe})
-
-        for elem in self.item_arr:
-            self.canvas1.delete(elem)
-            self.item_arr=[]
-
-        x = (self.im_x_size)/2.0
-        y = (self.im_y_size)/2.0
-        for n,elem in enumerate(self.Match):
-            self.item_arr.append(self.canvas1.create_image(x+self.im_x_size*n, y, image=elem['type']))
-
-    def update_icons(self):
-        pass 
-
-    def __init__(self,parent,network,draw_plot,slider):
-        Tk.Frame.__init__(self,parent)
-        self.parent=parent
-        
-        self.net=network
-        self.draw_plot=draw_plot
-        self.slider=slider
-        self.Match=[]
-        
-        self.im_y_size=150
-        self.im_x_size=150
-
-        self.box=None
-        self.drag=False
-        self.image_selection=0
-
-        self.item_arr=[] #contains canvas item index
-
-        self.canvas1 = Tk.Canvas(parent,width=850, height=150)#,scrollregion=(0,0,1000,150)
-        self.canvas1.grid(row=3,column=0,columnspan=3,sticky=Tk.W)
-        self.canvas1.configure(background='white')
-
-        #print self.item_arr
-        self.update_icons()
-        self.draw_schematic()
-        self.draw_box(self.canvas1,0)
-
-        self.canvas1.bind('<Button-1>', self.down_click)
-        ##canvas1.bind('<Button-3>', right_click)
-        self.canvas1.bind('<B1-Motion>', self.follow_mouse)
-        self.canvas1.bind('<ButtonRelease-1>', self.reposition_image)
-
 
 class MainWindow(Tk.Frame):
     def __init__(self,parent):
