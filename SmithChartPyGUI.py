@@ -1,6 +1,6 @@
 from plot_funcs import *
 from canvas_slider import *
-from network_classes import *
+from network_class import *
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -23,11 +23,17 @@ class SchematicFrame(Tk.Frame):
 
     def down_click(self,event):
         self.image_selection=int(event.x/self.im_x_size)
-#        if self.image_selection>len(self.item_arr):
-#            self.image_selection=self.item_arr[-1]
+        print "down_click, ", self.image_selection
+
+        #TODO
+        #1) Up-Date Slider, Min, Max, Cur, Unit, Step, etc.
+        #2) 
+
         self.canvas1.delete(self.box)
-        self.draw_box(self.canvas1,self.image_selection)#event.x/self.im_x_size)    
-        #self.canvas1.tag_raise(self.box)
+        self.draw_box(self.canvas1,self.image_selection)#event.x/self.im_x_size)
+
+
+
 
     def follow_mouse(self,event):
         new_x, new_y = event.x, event.y
@@ -67,13 +73,13 @@ class SchematicFrame(Tk.Frame):
         self.drag=False
 
     def draw_schematic(self):
-        capse = "icons/Cseries2.gif"
-        capsh = "icons/Cshunt2.gif"
+        capse = "icons/C.gif"
+        capsh = "icons/Csh.gif"
         self.CapIconSe = Tk.PhotoImage(file=capse)
         self.CapIconSh = Tk.PhotoImage(file=capsh)
 
-        indse = "icons/Lseries2.gif"
-        indsh = "icons/Lshunt2.gif"
+        indse = "icons/Lse.gif"
+        indsh = "icons/Lsh.gif"
         self.IndIconSe = Tk.PhotoImage(file=indse)
         self.IndIconSh = Tk.PhotoImage(file=indsh)
 
@@ -97,21 +103,22 @@ class SchematicFrame(Tk.Frame):
         x = (self.im_x_size)/2.0
         y = (self.im_y_size)/2.0
         for n,elem in enumerate(self.Match):
-            self.item_arr.append(self.canvas1.create_image(x+100*n, y, image=elem['type']))
+            self.item_arr.append(self.canvas1.create_image(x+self.im_x_size*n, y, image=elem['type']))
 
     def update_icons(self):
         pass 
 
-    def __init__(self,parent,network,draw_plot):
+    def __init__(self,parent,network,draw_plot,slider):
         Tk.Frame.__init__(self,parent)
         self.parent=parent
         
         self.net=network
         self.draw_plot=draw_plot
+        self.slider=slider
         self.Match=[]
         
         self.im_y_size=150
-        self.im_x_size=100
+        self.im_x_size=150
 
         self.box=None
         self.drag=False
@@ -147,9 +154,9 @@ class MainWindow(Tk.Frame):
         PlotSmith(self.mainplot)
 
         parent.bind('<Up>',self.test)
-        
+
         #fig.draw(0)
-        
+
         self.settings={'centerfreq':2.0e9,
                        'lowerfreq':1.5e9,
                        'upperfreq':2.5e9,
@@ -171,7 +178,7 @@ class MainWindow(Tk.Frame):
 
         a=Tk.Canvas(Palette,width=50)
         a.grid(row=2,column=0,columnspan=2,sticky=Tk.N+Tk.W)
-        b=SliderFrame(a)
+        slider=SliderFrame(a)
         #b.grid(row=2,column=0)
         
         entry1=Tk.Entry(Palette,width=5)
@@ -219,7 +226,7 @@ class MainWindow(Tk.Frame):
         self.im_size=150
         SchemFrame = Tk.Frame(root)
         SchemFrame.grid(row=2,column=0,columnspan=2,sticky=Tk.W)
-        self.Schem = SchematicFrame(SchemFrame,self.net,self.draw_plot) #Pass re-draw function to schematic ########
+        self.Schem = SchematicFrame(SchemFrame,self.net,self.draw_plot,slider) #Pass re-draw function to schematic ########
         #Schem.grid(row=0,column=0)
 
         #Draw
@@ -280,7 +287,7 @@ class MainWindow(Tk.Frame):
             elif self.net.element_array[i].orientation==1:
                 curve_data=ConstAdmitCurve(nodeZ[i],nodeZ[i+1],100)
                 self.curves.extend(self.mainplot.plot(curve_data[0],curve_data[1],lw=3,color='b'))
-            
+
         for i in range(len(nodeZ)):
             Gam=ZtoGamma(nodeZ[i])
             #print Gam
@@ -289,8 +296,15 @@ class MainWindow(Tk.Frame):
         self.pltcanvas.draw()
 
 
-root=Tk.Tk()
-root.wm_title("Impedance Matching Tool")
-a=MainWindow(root)
-root.mainloop()
 
+if __name__=='__main__':
+
+    print "OK"
+
+    
+    root=Tk.Tk()
+    
+    root.wm_title("Impedance Matching Tool")
+    
+    a=MainWindow(root)
+    root.mainloop()

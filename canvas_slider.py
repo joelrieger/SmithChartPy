@@ -13,15 +13,23 @@ class SliderFrame(Tk.Canvas):
         
         self.slider_state=False
         self.slider_position=20
-        self.value=6.1
-        
+        self.values={'cur':6.1,
+                     'min':0.1,
+                     'max':12.1,
+                     'step':0.1,
+                     'unit':'pF'}
+
+        self.snap_pixels=(self.values['max']-self.values['min'])/self.values['step']/400
+
+        print self.snap_pixels
         self.highvar = Tk.StringVar()
         self.elemvar = Tk.StringVar()
         self.lowvar = Tk.StringVar()
 
-        self.highvar.set('12.1 pF')
-        self.elemvar.set('6.1 pF')
-        self.lowvar.set('0.1 pF')
+        
+        self.highvar.set(str(self.values['max'])+' '+self.values['unit'])
+        self.elemvar.set(str(self.values['cur'])+' '+self.values['unit'])
+        self.lowvar.set(str(self.values['min'])+' '+self.values['unit'])
         
         self.canvas1 = Tk.Canvas(width=200, height=500)
         self.canvas1.grid(row=1,column=0)#(expand=1, fill=Tk.BOTH)
@@ -41,18 +49,18 @@ class SliderFrame(Tk.Canvas):
 
         self.canvas1.update()
         self.canvas1.tag_bind(self.slider,'<ButtonPress-1>',self.slideon)
-        self.canvas1.bind('<B1-Motion>',self.move_slider)
+        self.canvas1.bind('<B1-Motion>',self.mouse_move_slider)
         
         
     def update_slider(self,*args):
         self.canvas1.focus_set()
     
     def set_value(self,val):
+        
         self.canvas1.itemconfigure(self.valuetext,text=val)
         self.value = float(val.replace('pF',''))
+        #self.values['cur']=val
 
-        print self.value
-        
     def up(self,*args):
         distance=-10
         x1,y1,x2,y2=self.canvas1.coords(self.slider)
@@ -84,21 +92,41 @@ class SliderFrame(Tk.Canvas):
         self.slider_deactive()
         self.slider_state=False
 
-    def move_slider(self,event):
+    def mouse_move_slider(self,event):
         new_x, new_y = event.x, event.y
         x1, y1, x2, y2 = self.canvas1.coords(self.slider)
 
         if ((new_y <= 450)&(new_y>=50)):
             distance=new_y-y2
-            if abs(distance)>= 10:
-                distance=int((new_y-y2)/10.0)*10.0
+            if abs(distance)>= self.snap_pixels:
+                distance=int((new_y-y2)/self.snap_pixels)*self.snap_pixels
                 self.canvas1.move(self.slider,0,distance)
-                self.slider_position+=distance/10.0
+                self.slider_position=y2+distance
 
-                #print (self.highvar.get().replace('pF',''))
-                ticks=(float(self.highvar.get().replace('pF',''))-float(self.lowvar.get().replace('pF','')))/40.0
-                val=float(self.highvar.get().replace('pF',''))-ticks*self.slider_position
-                self.set_value("%.1f"%val+' pF')
+                m=(50-450)/(self.values['max']-self.values['min'])
+                val=self.values['max']-(50-self.slider_position)/m
+                
+                self.set_value("%.3f"%val+' pF')
+                self.values['cur']=val
+
+        #FIX TO MAKE STEP SIZE ACTUALLY WORK
+        print self.values['cur']
+        
+    def move_slider_value(self,val):
+        """
+        !!! FINISH THIS FUNCTION !!!
+        """
+        
+        x1,y1,x2,y2=self.canvas1.coords(self.slider)
+
+        self.values['cur']=val
+        self.set_value("%.1f"%val+' pF')
+
+        m=(450-50)/(0.1-12.1)
+        
+        y_new=m*(val+0.1)+450
+        
+        self.canvas1.move(self.slider,0,y_new-y1)
 
 
 if __name__=='__main__':
@@ -108,6 +136,7 @@ if __name__=='__main__':
     Frame.grid(row=0,column=0)
     Slider=SliderFrame(Frame)
     Slider.grid(row=0,column=0)
-
+    Slider.move_slider_value(2.5)
+    
     root.mainloop()
-
+    
