@@ -143,6 +143,8 @@ class MainWindow(Tk.Frame):
 
         self.curves=[]
         self.dots=[]
+
+        print "Git Test"
         
         PlotSmith(self.mainplot)
 
