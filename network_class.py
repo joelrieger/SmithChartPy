@@ -75,6 +75,23 @@ class cap(element):
         element.__init__(self,*args,**kargs)
         self.name='cap'
 
+        if 'min' in kargs:
+            self.val['min']=kargs['min']
+        else:
+            self.val['min']=1e-12
+
+        if 'max' in kargs:
+            self.val['max']=kargs['max']
+        else:
+            self.val['max']=12.1e-12
+
+        if 'step' in kargs:
+            self.val['step']=kargs['step']
+        else:
+            self.val['step']=0.1e-12
+
+        self.val['unit']='pF'
+                
         if len(args)!=1:
             print "ERROR: cap(element) requires 1 argument"
         else:
@@ -84,6 +101,7 @@ class cap(element):
         self.Yfunc=lambda self,freq: (1j*2*pi*freq*self.val['C']) #function to define admittance
         self.Zfunc=lambda self,freq: 1.0/self.Yfunc(self,freq)
 
+
 class ind(element):
     """Modification of element class to model an ideal capacitor"""
 
@@ -91,14 +109,31 @@ class ind(element):
         element.__init__(self,*args,**kargs)
         self.name='ind'
 
+        if 'min' in kargs:
+            self.val['min']=kargs['min']
+        else:
+            self.val['min']=1e-9
+
+        if 'max' in kargs:
+            self.val['max']=kargs['max']
+        else:
+            self.val['max']=12.1e-9
+
+        if 'step' in kargs:
+            self.val['step']=kargs['step']
+        else:
+            self.val['step']=0.1e-9
+
+        self.val['unit']='nH'
+        
         if len(args)!=1:
             print "ERROR: ind(element) requires 1 argument"
         else:
             self.val['L']=args[0]
 
         self.Zfunc=lambda self,freq: 1j*2*pi*freq*self.val['L'] #function to define series impedance
-        #self.Yfunc=lambda self,freq: 1.0/(2*pi*freq*self.val['L']) #function to define admittance
         self.Yfunc=lambda self,freq: 1.0/self.Zfunc(self,freq)
+
 
 class indQ(element):
     """Modification of element class to model an capacitor with a fixed Q"""
@@ -154,6 +189,6 @@ if __name__=='__main__':
     net.element_array.append(C1)
     net.element_array.append(L1)
 
-    #print net.compute_node_impedances(2.0e9)
+    print net.compute_node_impedances(2.0e9)
     
     

@@ -21,15 +21,10 @@ class SliderFrame(Tk.Canvas):
 
         self.snap_pixels=(self.values['max']-self.values['min'])/self.values['step']/400
 
-        print self.snap_pixels
+        #print self.snap_pixels
         self.highvar = Tk.StringVar()
         self.elemvar = Tk.StringVar()
         self.lowvar = Tk.StringVar()
-
-        
-        self.highvar.set(str(self.values['max'])+' '+self.values['unit'])
-        self.elemvar.set(str(self.values['cur'])+' '+self.values['unit'])
-        self.lowvar.set(str(self.values['min'])+' '+self.values['unit'])
         
         self.canvas1 = Tk.Canvas(width=200, height=500)
         self.canvas1.grid(row=1,column=0)#(expand=1, fill=Tk.BOTH)
@@ -50,28 +45,36 @@ class SliderFrame(Tk.Canvas):
         self.canvas1.update()
         self.canvas1.tag_bind(self.slider,'<ButtonPress-1>',self.slideon)
         self.canvas1.bind('<B1-Motion>',self.mouse_move_slider)
+
+        self.update_slider()
+    
+    def update_slider(self,**kargs):
+
+        if 'values' in kargs:
+            self.values=kargs['values']
+            
+        self.highvar.set(str(self.values['max'])+' '+self.values['unit'])
+        self.elemvar.set(str(self.values['cur'])+' '+self.values['unit'])
+        self.lowvar.set(str(self.values['min'])+' '+self.values['unit'])
+
+        self.canvas1.itemconfigure(self.valuetext,text=str(self.values['cur'])+' '+self.values['unit'])
         
-        
-    def update_slider(self,*args):
         self.canvas1.focus_set()
     
-    def set_value(self,val):
+    #def set_value(self,va):
         
-        self.canvas1.itemconfigure(self.valuetext,text=val)
-        self.value = float(val.replace('pF',''))
-        #self.values['cur']=val
 
-    def up(self,*args):
-        distance=-10
-        x1,y1,x2,y2=self.canvas1.coords(self.slider)
-        if ((y1 <= (450+distance))&( y1 >=(50-distance))):
-                self.canvas1.move(self.slider,0,distance)
+    #def up(self,*args):
+    #    distance=-10
+    #    x1,y1,x2,y2=self.canvas1.coords(self.slider)
+    #    if ((y1 <= (450+distance))&( y1 >=(50-distance))):
+    #            self.canvas1.move(self.slider,0,distance)
 
-    def down(self,*args):
-        distance=10
-        x1,y1,x2,y2=self.canvas1.coords(self.slider)
-        if ((y1 <= (450+distance))&(y1 >= (50-distance))):
-                self.canvas1.move(self.slider,0,distance)
+    #def down(self,*args):
+    #    distance=10
+    #    x1,y1,x2,y2=self.canvas1.coords(self.slider)
+    #    if ((y1 <= (450+distance))&(y1 >= (50-distance))):
+    #            self.canvas1.move(self.slider,0,distance)
         
     def slider_active(self,*args):
         if self.slider_state==False:
@@ -104,13 +107,9 @@ class SliderFrame(Tk.Canvas):
                 self.slider_position=y2+distance
 
                 m=(50-450)/(self.values['max']-self.values['min'])
-                val=self.values['max']-(50-self.slider_position)/m
+                self.values['cur']=self.values['max']-(50-self.slider_position)/m
                 
-                self.set_value("%.3f"%val+' pF')
-                self.values['cur']=val
-
-        #FIX TO MAKE STEP SIZE ACTUALLY WORK
-        print self.values['cur']
+            self.update_slider()
         
     def move_slider_value(self,val):
         """
@@ -120,14 +119,13 @@ class SliderFrame(Tk.Canvas):
         x1,y1,x2,y2=self.canvas1.coords(self.slider)
 
         self.values['cur']=val
-        self.set_value("%.1f"%val+' pF')
+        #self.set_value("%.1f"%val+' pF')
 
         m=(450-50)/(0.1-12.1)
-        
         y_new=m*(val+0.1)+450
-        
         self.canvas1.move(self.slider,0,y_new-y1)
-
+        
+        self.update_slider()
 
 if __name__=='__main__':
     root = Tk.Tk()
@@ -136,7 +134,7 @@ if __name__=='__main__':
     Frame.grid(row=0,column=0)
     Slider=SliderFrame(Frame)
     Slider.grid(row=0,column=0)
-    Slider.move_slider_value(2.5)
-    
+    Slider.move_slider_value(4.5)
+    Slider.update_slider(values={'cur':8.2,'min':0.1,'max':12.0,'step':0.1,'unit':'pF'})
     root.mainloop()
     

@@ -1,3 +1,11 @@
+"""
+Author: Joel Rieger
+
+October 29, 2016
+
+Description: Smith Chart matching tool
+"""
+
 from plot_funcs import *
 from canvas_slider import *
 from network_class import *
@@ -38,6 +46,7 @@ class MainWindow(Tk.Frame):
         #PALETTE FRAME
         Palette = Tk.Frame(root)
         Palette.grid(row=1,column=0,sticky=Tk.N)
+        
         button1=Tk.Button(Palette,text="SeriesC", command=self.add_series_c)
         button1.grid(row=0,column=0)
         button1=Tk.Button(Palette,text="ShuntC", command=self.add_shunt_c)
@@ -47,13 +56,9 @@ class MainWindow(Tk.Frame):
         button1=Tk.Button(Palette,text="ShuntL", command=self.add_shunt_l)
         button1.grid(row=1,column=1)
 
-        a=Tk.Canvas(Palette,width=50)
-        a.grid(row=2,column=0,columnspan=2,sticky=Tk.N+Tk.W)
-        slider=SliderFrame(a)
-        #b.grid(row=2,column=0)
-        
-        entry1=Tk.Entry(Palette,width=5)
-        entry1.grid(row=2,column=0,sticky=Tk.S)
+        slider_canvas=Tk.Canvas(Palette,width=50)
+        slider=SliderFrame(slider_canvas)
+        slider.grid(row=2,column=0)
 
         #COMPONENT CONTROL BUTTON FRAMES (i.e. delete, edit)
         CmpCntrl = Tk.Frame(root)
