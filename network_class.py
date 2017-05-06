@@ -90,7 +90,7 @@ class cap(element):
         else:
             self.val['step']=0.1e-12
 
-        self.val['unit']='pF'
+        self.val['unit']='pF' #Unit not used to scale value variable
                 
         if len(args)!=1:
             print "ERROR: cap(element) requires 1 argument"
@@ -124,7 +124,7 @@ class ind(element):
         else:
             self.val['step']=0.1e-9
 
-        self.val['unit']='nH'
+        self.val['unit']='nH' #Unit not used to scale value variable
         
         if len(args)!=1:
             print "ERROR: ind(element) requires 1 argument"
