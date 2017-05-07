@@ -56,9 +56,6 @@ class MainWindow(Tk.Frame):
         button1=Tk.Button(Palette,text="ShuntL", command=self.add_shunt_l)
         button1.grid(row=1,column=1)
 
-        slider_canvas=Tk.Canvas(Palette,width=50)
-        slider=SliderFrame(slider_canvas)
-        slider.grid(row=2,column=0)
 
         #COMPONENT CONTROL BUTTON FRAMES (i.e. delete, edit)
         CmpCntrl = Tk.Frame(root)
@@ -97,7 +94,12 @@ class MainWindow(Tk.Frame):
         self.net.element_array.append(L3)
 
         #TEST CASE -- matching 50.0 Ohms to ~5.0 Ohms at 2 GHz
-        
+
+        #SLIDER FRAME
+        slider_canvas=Tk.Canvas(Palette,width=50)
+        slider=SliderFrame(slider_canvas,self.callback)
+        slider.grid(row=2,column=0)
+
         #SCHEMATIC FRAME
         self.im_size=150
         SchemFrame = Tk.Frame(root)
@@ -109,6 +111,18 @@ class MainWindow(Tk.Frame):
         #self.center_freq=2.0e9
         self.draw_plot()
 
+    def callback(self,**kargs):
+        unit_map={'u':1e-6,'n':1e-9,'p':1e-12,'f':1e-15}
+        
+        if 'values' in kargs:
+            if 'cur' in kargs['values']:
+                i=self.Schem.image_selection
+                scale=unit_map[self.net.element_array[i].val['unit'][0]]
+                self.net.element_array[i].set_val(kargs['values']['cur']*scale)
+                print i,kargs['values']['cur']
+                #self.Schem.draw_schematic()
+                self.draw_plot()
+                
     def test(self,event):
         print "OK"
         
@@ -179,7 +193,6 @@ if __name__=='__main__':
 
     
     root=Tk.Tk()
-    
     root.wm_title("Impedance Matching Tool")
     
     a=MainWindow(root)

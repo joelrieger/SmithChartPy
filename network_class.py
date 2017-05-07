@@ -50,6 +50,7 @@ class element(object):
         self.name=''
         self.icon=''
         self.orientation=0
+        self.default=''
         
         if kargs.has_key('shunt'):
             self.orientation=kargs['shunt'] # 0: Series, 1:Shunt
@@ -58,8 +59,8 @@ class element(object):
         self.Zfunc=lambda self,x: 1e-14 #function to define series impedance
         self.Yfunc=lambda self,x: 1e14 #function to define admittance
 
-    def __setval__(self,val):
-        self.val=val
+#    def __setval__(self,val):
+#        self.val=val
         
     def Z(self,freq):
         return self.Zfunc(self,freq)
@@ -68,13 +69,19 @@ class element(object):
         return self.Yfunc(self,freq)
 
 
+    def set_val(self,val,**kargs):
+        self.val[self.default]=val
+        #Populate self.val with kargs dictionary at later date
+        
+
 class cap(element):
     """Modification of element class to model an ideal capacitor"""
 
     def __init__(self,*args,**kargs):
         element.__init__(self,*args,**kargs)
         self.name='cap'
-
+        self.default='C'
+        
         if 'min' in kargs:
             self.val['min']=kargs['min']
         else:
@@ -95,12 +102,12 @@ class cap(element):
         if len(args)!=1:
             print "ERROR: cap(element) requires 1 argument"
         else:
-            self.val['C']=args[0]
+            self.val[self.default]=args[0]
 
         #self.Zfunc=lambda self,freq: 1j/(2*pi*freq*self.val['C']) #function to define series impedance
         self.Yfunc=lambda self,freq: (1j*2*pi*freq*self.val['C']) #function to define admittance
         self.Zfunc=lambda self,freq: 1.0/self.Yfunc(self,freq)
-
+        
 
 class ind(element):
     """Modification of element class to model an ideal capacitor"""
@@ -108,7 +115,8 @@ class ind(element):
     def __init__(self,*args,**kargs):
         element.__init__(self,*args,**kargs)
         self.name='ind'
-
+        self.default='L'
+        
         if 'min' in kargs:
             self.val['min']=kargs['min']
         else:

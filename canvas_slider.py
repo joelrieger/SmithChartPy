@@ -2,7 +2,7 @@ import Tkinter as Tk
 
 class SliderFrame(Tk.Canvas):
     #pass in: network, draw_plot, image_selection
-    def __init__(self,parent):
+    def __init__(self,parent,callback):
         Tk.Canvas.__init__(self,parent)
         
         #parent.bind('<Left>',self.up)
@@ -19,6 +19,8 @@ class SliderFrame(Tk.Canvas):
                      'step':0.1,
                      'unit':'pF'}
 
+        self.callback=callback
+        
         self.snap_pixels=(self.values['max']-self.values['min'])/self.values['step']/400
 
         #print self.snap_pixels
@@ -59,7 +61,12 @@ class SliderFrame(Tk.Canvas):
 
         self.canvas1.itemconfigure(self.valuetext,text=str(self.values['cur'])+' '+self.values['unit'])
         
-        self.canvas1.focus_set()
+        #self.canvas1.focus_set()
+        #self.move_slider_value(self.values['cur'])
+        
+
+    def update_slider_position(self):
+        self.move_slider_value(self.values['cur'])
     
     #def set_value(self,va):
         
@@ -95,6 +102,25 @@ class SliderFrame(Tk.Canvas):
         self.slider_deactive()
         self.slider_state=False
 
+
+    def val_from_coord(self,y):
+        Vmin=self.values['min']
+        Vmax=self.values['max']
+        
+        m=(Vmin-Vmax)/(450.0-50.0)
+
+        return m*(y-450.0)+Vmin
+
+
+    def coord_from_val(self,val):
+        Vmin=self.values['min']
+        Vmax=self.values['max']
+        
+        m=(Vmin-Vmax)/(450.0-50.0)
+        
+        return (val-Vmin)/m+450.0
+
+    
     def mouse_move_slider(self,event):
         new_x, new_y = event.x, event.y
         x1, y1, x2, y2 = self.canvas1.coords(self.slider)
@@ -106,35 +132,20 @@ class SliderFrame(Tk.Canvas):
                 self.canvas1.move(self.slider,0,distance)
                 self.slider_position=y2+distance
 
-                m=(50-450)/(self.values['max']-self.values['min'])
-                self.values['cur']=self.values['max']-(50-self.slider_position)/m
+                self.values['cur']=self.val_from_coord(self.slider_position)
                 
             self.update_slider()
-        
+
+            self.callback(values={'cur':self.values['cur']})
+    
+    
     def move_slider_value(self,val):
         """
         !!! FINISH THIS FUNCTION !!!
         """
         
         x1,y1,x2,y2=self.canvas1.coords(self.slider)
-
         self.values['cur']=val
-        #self.set_value("%.1f"%val+' pF')
-
-        m=(450-50)/(0.1-12.1)
-        y_new=m*(val+0.1)+450
-        self.canvas1.move(self.slider,0,y_new-y1)
+        self.canvas1.move(self.slider,0,self.coord_from_val(val)-y1)
         
-        self.update_slider()
-
-if __name__=='__main__':
-    root = Tk.Tk()
-    
-    Frame=Tk.Canvas(root)
-    Frame.grid(row=0,column=0)
-    Slider=SliderFrame(Frame)
-    Slider.grid(row=0,column=0)
-    Slider.move_slider_value(4.5)
-    Slider.update_slider(values={'cur':8.2,'min':0.1,'max':12.0,'step':0.1,'unit':'pF'})
-    root.mainloop()
-    
+        #self.update_slider()
