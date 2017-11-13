@@ -27,6 +27,9 @@ class MainWindow(Tk.Frame):
         fig.subplots_adjust(left=0.01, bottom=0.01, right=0.99, top=0.99)
         self.mainplot = fig.add_subplot(111,aspect=1)
 
+        self.mainplot.set_xticks([])
+        self.mainplot.set_yticks([])
+
         self.curves=[]
         self.dots=[]
 

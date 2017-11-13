@@ -33,7 +33,7 @@ class SchematicFrame(Tk.Frame):
         self.Match=[]
         
         self.im_y_size=150
-        self.im_x_size=150
+        self.im_x_size=100
 
         self.box=None
         self.drag=False
@@ -159,18 +159,18 @@ class SchematicFrame(Tk.Frame):
 
 
     def draw_schematic(self):
-        capse = "icons/C.gif"
-        capsh = "icons/Csh.gif"
+        capse = "icons/Cse_r02.gif"
+        capsh = "icons/Csh_r02.gif"
         self.CapIconSe = Tk.PhotoImage(file=capse)
         self.CapIconSh = Tk.PhotoImage(file=capsh)
 
-        indse = "icons/Lse.gif"
-        indsh = "icons/Lsh.gif"
+        indse = "icons/Lse_r02.gif"
+        indsh = "icons/Lsh_r02.gif"
         self.IndIconSe = Tk.PhotoImage(file=indse)
         self.IndIconSh = Tk.PhotoImage(file=indsh)
 
-        rload = "icons/Rl.gif"
-        rsrc = "icons/Rs.gif"
+        rload = "icons/Rl_r02.gif"
+        rsrc = "icons/Rs_r02.gif"
 
         self.Rload = Tk.PhotoImage(file=rload)
         self.Rsrc = Tk.PhotoImage(file=rsrc)
