@@ -64,6 +64,8 @@ class MainWindow(Tk.Frame):
         button1.grid(row=0,column=0)
         button1=Tk.Button(CmpCntrl,text="Edit",command=self.edit_element)
         button1.grid(row=0,column=1)
+        button1=Tk.Button(CmpCntrl,text="Settings",command=self.edit_element)
+        button1.grid(row=0,column=2)
         
         #PLOT FRAME
         PlotFrame = Tk.Frame(root)
@@ -90,7 +92,6 @@ class MainWindow(Tk.Frame):
         self.net.element_array.append(L2)
         self.net.element_array.append(C1)
         self.net.element_array.append(L1)
-        
         self.net.element_array.append(L3)
 
         #TEST CASE -- matching 50.0 Ohms to ~5.0 Ohms at 2 GHz
@@ -112,6 +113,8 @@ class MainWindow(Tk.Frame):
         self.draw_plot()
 
     def callback(self,**kargs):
+        """Not really implemented -- in hindsight, this would have been a better way
+            of managing interface"""
         unit_map={'u':1e-6,'n':1e-9,'p':1e-12,'f':1e-15}
         
         if 'values' in kargs:
@@ -132,7 +135,6 @@ class MainWindow(Tk.Frame):
     def delete_element(self):
         n=self.Schem.image_selection
         self.net.element_array.pop(n)
-
         self.Schem.draw_schematic()
         self.draw_plot()
         
@@ -185,6 +187,7 @@ class MainWindow(Tk.Frame):
 
         self.pltcanvas.draw()
 
+        print "draw_plot()"
 
 
 if __name__=='__main__':

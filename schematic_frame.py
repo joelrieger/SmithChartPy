@@ -37,7 +37,7 @@ class SchematicFrame(Tk.Frame):
 
         self.box=None
         self.drag=False
-        self.image_selection=0
+        self.image_selection=None
 
         self.item_arr=[] #contains canvas item index
         self.item_positions=[]
@@ -46,10 +46,8 @@ class SchematicFrame(Tk.Frame):
         self.canvas1.grid(row=3,column=0,columnspan=3,sticky=Tk.W)
         self.canvas1.configure(background='white')
 
-        #print self.item_arr
-        self.update_icons()
         self.draw_schematic()
-        self.draw_box(self.canvas1,0)
+        #self.draw_box(self.canvas1,0)
 
         self.canvas1.bind('<Button-1>', self.down_click)
         ##canvas1.bind('<Button-3>', right_click)
@@ -57,17 +55,16 @@ class SchematicFrame(Tk.Frame):
         self.canvas1.bind('<ButtonRelease-1>', self.reposition_image)
 
 
-    def im_reorder(self,event,old,new):
-        self.canvas1.move(self.item_arr[new], (old-new)*self.im_x_size, 0)
+    def get_elem_index(self,x):
+        index=int(x/self.im_x_size)
+        if ((index>0)and(index<self.net.element_array)):
+            return index-1 #offset by one because of load, which is not part of element array
+        else:
+            return None
 
-        self.item_arr[old], self.item_arr[new] = self.item_arr[new], self.item_arr[old]
-        self.net.element_array[old], self.net.element_array[new] = self.net.element_array[new], self.net.element_array[old]
-        
-        self.image_selection=new
-        self.draw_plot()
 
     def down_click(self,event):
-        self.image_selection=int(event.x/self.im_x_size)
+        self.image_selection=self.get_elem_index(event.x)#int(event.x/self.im_x_size)
         #print "down_click, ", self.image_selection
 
         #TODO
@@ -76,14 +73,18 @@ class SchematicFrame(Tk.Frame):
         i=self.image_selection
 
         #Make this more elegant...
-        if self.net.element_array[i].name=='cap':
+        if self.image_selection==None:
+            return
+            
+        if self.net.element_array[self.image_selection].name=='cap':
             valname='C'
-        elif self.net.element_array[i].name=='ind':
+        elif self.net.element_array[self.image_selection].name=='ind':
             valname='L'
 
         unit_map={'u':1e-6,'n':1e-9,'p':1e-12,'f':1e-15}
         scale_letter=self.net.element_array[i].val['unit'][0]
         scale=unit_map[scale_letter]
+
         
         self.slider.update_slider(values={'min':self.net.element_array[i].val['min']/scale,
                                           'cur':self.net.element_array[i].val[valname]/scale,
@@ -94,22 +95,43 @@ class SchematicFrame(Tk.Frame):
         self.slider.update_slider_position()
         
         self.canvas1.delete(self.box)
-        self.draw_box(self.canvas1,self.image_selection)#event.x/self.im_x_size)
+        self.draw_box(self.canvas1,self.image_selection+1)#event.x/self.im_x_size)
         self.draw_plot()
 
 
+    def im_reorder(self,event,old,new):
+        print "old, new:\t", old, new
+        print "Move by:\t", (old-new)*self.im_x_size
+        self.canvas1.move(self.item_arr[new+1], (old-new)*self.im_x_size, 0)
+
+        self.item_arr[old+1], self.item_arr[new+1] = self.item_arr[new+1], self.item_arr[old+1]
+        self.net.element_array[old], self.net.element_array[new] = self.net.element_array[new], self.net.element_array[old]
+        
+        self.image_selection=new
+
+        self.draw_plot()
+        print "self.draw_plot()"
+        print "---"
+
+        
     def follow_mouse(self,event):
         new_x, new_y = event.x, event.y
-        old_x, old_y = self.canvas1.coords(self.item_arr[self.image_selection])
+        old_x, old_y = self.canvas1.coords(self.item_arr[self.image_selection+1])
 
         num_items=len(self.item_arr)        
         position_num=nearest_ind(self.item_positions,new_x)
 
-        self.canvas1.move(self.item_arr[self.image_selection], new_x-old_x, new_y-old_y)
+        self.canvas1.move(self.item_arr[self.image_selection+1], new_x-old_x, new_y-old_y)
         self.drag=True
 
         if int(new_x/self.im_x_size) != int(old_x/self.im_x_size):
+            print "self.image_selection:\t", self.image_selection
+            print "position_num:\t", position_num
             self.im_reorder(event,self.image_selection,position_num)
+            print "switch"
+
+            print "self.item_arr:\t",self.item_arr
+            print "self.item_positions", self.item_positions
 
 
     def draw_box(self,canvas,n):
@@ -118,21 +140,23 @@ class SchematicFrame(Tk.Frame):
                                            width=w,dash='.')
         canvas.tag_raise(self.box)
 
+
     def new_position(self,x):
-        #valid
         return max(min(int(new_x/self.im_x_size)),0)
-        
+
+
     def reposition_image(self,event):
         new_x, new_y = event.x, event.y
 
         position_num=nearest_ind(self.item_positions,new_x)
         nearest_valid_x=self.item_positions[position_num]
-        print new_x, position_num, nearest_valid_x
+        
         if (self.drag==True&(position_num<=len(self.item_arr))):
-            self.canvas1.move(self.item_arr[position_num],
+            self.canvas1.move(self.item_arr[self.image_selection+1],
                               nearest_valid_x-new_x,
                               -new_y+0.5*self.im_y_size)
         self.drag=False
+
 
     def draw_schematic(self):
         capse = "icons/C.gif"
@@ -145,7 +169,15 @@ class SchematicFrame(Tk.Frame):
         self.IndIconSe = Tk.PhotoImage(file=indse)
         self.IndIconSh = Tk.PhotoImage(file=indsh)
 
+        rload = "icons/Rl.gif"
+        rsrc = "icons/Rs.gif"
+
+        self.Rload = Tk.PhotoImage(file=rload)
+        self.Rsrc = Tk.PhotoImage(file=rsrc)
+
         self.Match=[]
+        self.Match.append({'type':self.Rsrc})
+
         for elem in self.net.element_array:
             if elem.name == 'cap':
                 if elem.orientation==1:
@@ -158,19 +190,22 @@ class SchematicFrame(Tk.Frame):
                 elif elem.orientation==0:
                     self.Match.append({'type':self.IndIconSe})
 
+        self.Match.append({'type':self.Rload})
+        
         for elem in self.item_arr:
             self.canvas1.delete(elem)
-            self.item_arr=[]
-            self.item_positions=[]
+        self.item_arr=[]
+        self.item_positions=[]
 
         x = (self.im_x_size)/2.0
         y = (self.im_y_size)/2.0
         for n,elem in enumerate(self.Match):
             self.item_arr.append(self.canvas1.create_image(x+self.im_x_size*n, y, image=elem['type']))
-        self.item_positions=[n*self.im_x_size+0.5*self.im_x_size for n in range(len(self.item_arr))]
+            
+        self.item_positions=[n*self.im_x_size+1.5*self.im_x_size for n in range(len(self.item_arr))]
+            #1.5*self.im_x_size because the first element is the source impedance
+    
 
-    def update_icons(self):
-        pass 
 
 if __name__=='__main__':
 
@@ -191,9 +226,11 @@ if __name__=='__main__':
         def __init__(self):
             pass
         def update_slider(self,values={}):
-            print values
+            pass
+            #print values
         def draw_plot(self):
-            print "draw_plot() called"
+            pass
+            #print "draw_plot() called"
         def update_slider_position(self):
             print "update_slider_position() called"
 
