@@ -3,7 +3,7 @@ import Tkinter as Tk
 class SliderFrame(Tk.Canvas):
     #pass in: network, draw_plot, image_selection
     def __init__(self,parent,callback):
-        Tk.Canvas.__init__(self,parent)
+        Tk.Canvas.__init__(self,parent,bg='white')
         
         #parent.bind('<Left>',self.up)
         #parent.bind('<Right>',self.down)
@@ -29,7 +29,8 @@ class SliderFrame(Tk.Canvas):
         self.lowvar = Tk.StringVar()
         
         self.canvas1 = Tk.Canvas(width=200, height=500)
-        self.canvas1.grid(row=1,column=0)#(expand=1, fill=Tk.BOTH)
+        self.canvas1.configure(background='white')
+        self.canvas1.grid(row=1,column=0,stick=Tk.N)#(expand=1, fill=Tk.BOTH)
 
         self.canvas1.create_line(50,50,50,450,width=4,fill='#777')
         self.slider=self.canvas1.create_line(40,250,60,250,width=10,fill='#228')
@@ -136,7 +137,7 @@ class SliderFrame(Tk.Canvas):
                 
             self.update_slider()
 
-            self.callback(values={'cur':self.values['cur']})
+            self.callback(values={'cur':self.values['cur']-1})
     
     
     def move_slider_value(self,val):

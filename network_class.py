@@ -15,7 +15,7 @@ class network(object):
 
     def __init__(self):
         
-        self.ZP2=lambda freq: 75.0+10j #Network termination on output
+        self.ZP2=lambda freq: 50.0 #Network termination on output
         self.ZP1=lambda freq: 50.0 #Network termination on output
     
     def compute_node_impedances(self,freq):

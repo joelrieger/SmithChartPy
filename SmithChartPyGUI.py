@@ -20,6 +20,7 @@ from matplotlib.figure import Figure
 
 import Tkinter as Tk
 
+
 class MainWindow(Tk.Frame):
     def __init__(self,parent):
         Tk.Frame.__init__(self,parent)
@@ -30,6 +31,7 @@ class MainWindow(Tk.Frame):
         self.mainplot.set_xticks([])
         self.mainplot.set_yticks([])
 
+        self.vsfreq_curves=[]
         self.curves=[]
         self.dots=[]
 
@@ -39,39 +41,55 @@ class MainWindow(Tk.Frame):
 
         #fig.draw(0)
 
+        #Settings Not Used YEt
         self.settings={'centerfreq':2.0e9,
                        'lowerfreq':1.5e9,
                        'upperfreq':2.5e9,
+                       'stepsize':0.1e9,
                        'SmithImpedance':50.0,
-                       'InputImpedance':50+0*1j,
-                       'LoadImpedance':50+0*1j}
+                       'InputImpedance':50,
+                       'LoadImpedance':50}
 
-        #PALETTE FRAME
-        Palette = Tk.Frame(root)
-        Palette.grid(row=1,column=0,sticky=Tk.N)
+
         
-        button1=Tk.Button(Palette,text="SeriesC", command=self.add_series_c)
-        button1.grid(row=0,column=0)
-        button1=Tk.Button(Palette,text="ShuntC", command=self.add_shunt_c)
-        button1.grid(row=0,column=1)
-        button1=Tk.Button(Palette,text="SeriesL", command=self.add_series_l)
-        button1.grid(row=1,column=0)
-        button1=Tk.Button(Palette,text="ShuntL", command=self.add_shunt_l)
-        button1.grid(row=1,column=1)
 
+        
+        #SLIDER FRAME
+        Slider_Frame=Tk.Frame(root,bg='white')
+        Slider_Frame.grid(row=0,column=0)
+        
+        slider_canvas=Tk.Canvas(Slider_Frame)
+        slider=SliderFrame(slider_canvas,self.callback)
+        slider.grid(row=0,column=0,sticky=Tk.N)
 
         #COMPONENT CONTROL BUTTON FRAMES (i.e. delete, edit)
-        CmpCntrl = Tk.Frame(root)
-        CmpCntrl.grid(row=1,column=0,sticky=Tk.S)
-        button1=Tk.Button(CmpCntrl,text="Delete",command=self.delete_element)
-        button1.grid(row=0,column=0)
-        button1=Tk.Button(CmpCntrl,text="Edit",command=self.edit_element)
-        button1.grid(row=0,column=1)
-        button1=Tk.Button(CmpCntrl,text="Settings",command=self.edit_element)
-        button1.grid(row=0,column=2)
+        CmpCntrl = Tk.Frame()
+        CmpCntrl.grid(row=1,column=0,padx=5,pady=5,sticky=Tk.S)
+        #button_del=Tk.Button(CmpCntrl,width=10,text="Delete",command=self.delete_element)
+        #button_del.grid(row=2,column=0,padx=5,pady=1)
+        #button_edit=Tk.Button(CmpCntrl,width=10,text="Edit",command=self.edit_element)
+        #button_edit.grid(row=2,column=1,padx=5,pady=1)
+        #button1=Tk.Button(CmpCntrl,text="Settings",command=self.edit_element)
+        #button1.grid(row=2,column=2)
+
+        #PALETTE FRAME
+        #Palette = Tk.Frame(root)
+        #Palette.grid(row=1,column=0)
+
+        ser_c_icon=Tk.PhotoImage(file="./icons/button_Cse.gif")
+        button_ser_c=Tk.Button(CmpCntrl,image=ser_c_icon,command=self.add_series_c)#command=self.add_series_c,image=series_c_photo
+        button_ser_c.grid(row=0,column=0)
+        
+        #button2=Tk.Button(CmpCntrl,width=10,text="ShuntC", command=self.add_shunt_c)
+        #button2.grid(row=0,column=1)
+        #button3=Tk.Button(CmpCntrl,width=10,text="SeriesL", command=self.add_series_l)
+        #button3.grid(row=1,column=0)
+        #button4=Tk.Button(CmpCntrl,width=10,text="ShuntL", command=self.add_shunt_l)
+        #button4.grid(row=1,column=1)
+        #CmpCntrl.config(background="white")
         
         #PLOT FRAME
-        PlotFrame = Tk.Frame(root)
+        PlotFrame = Tk.Frame()
         PlotFrame.grid(row=1,column=1)
         self.pltcanvas = FigureCanvasTkAgg(fig, master=PlotFrame)
         self.pltcanvas.get_tk_widget().grid(row=1,column=1)
@@ -99,15 +117,11 @@ class MainWindow(Tk.Frame):
 
         #TEST CASE -- matching 50.0 Ohms to ~5.0 Ohms at 2 GHz
 
-        #SLIDER FRAME
-        slider_canvas=Tk.Canvas(Palette,width=50)
-        slider=SliderFrame(slider_canvas,self.callback)
-        slider.grid(row=2,column=0)
 
         #SCHEMATIC FRAME
-        self.im_size=150
+        self.im_size=100
         SchemFrame = Tk.Frame(root)
-        SchemFrame.grid(row=2,column=0,columnspan=2,sticky=Tk.W)
+        SchemFrame.grid(row=2,column=0,columnspan=6,sticky=Tk.N+Tk.S+Tk.W+Tk.E)
         self.Schem = SchematicFrame(SchemFrame,self.net,self.draw_plot,slider) #Pass re-draw function to schematic ########
         #Schem.grid(row=0,column=0)
 
@@ -119,15 +133,20 @@ class MainWindow(Tk.Frame):
         """Not really implemented -- in hindsight, this would have been a better way
             of managing interface"""
         unit_map={'u':1e-6,'n':1e-9,'p':1e-12,'f':1e-15}
-        
+
+        if 'image_selection' in kargs:
+            i=self.Schem.image_selection-1
+            self.draw_plot(selection=i)
         if 'values' in kargs:
             if 'cur' in kargs['values']:
-                i=self.Schem.image_selection
+                i=self.Schem.image_selection-1
                 scale=unit_map[self.net.element_array[i].val['unit'][0]]
                 self.net.element_array[i].set_val(kargs['values']['cur']*scale)
-                print i,kargs['values']['cur']
+                #print i,kargs['values']['cur']
                 #self.Schem.draw_schematic()
-                self.draw_plot()
+                self.draw_plot(selection=i)
+        
+            
                 
     def test(self,event):
         print "OK"
@@ -165,7 +184,7 @@ class MainWindow(Tk.Frame):
         self.Schem.draw_schematic()
         self.draw_plot()
         
-    def draw_plot(self):
+    def draw_plot(self,selection=None):
 
         nodeZ=self.net.compute_node_impedances(self.settings['centerfreq'])
 
@@ -174,7 +193,10 @@ class MainWindow(Tk.Frame):
 
         for i in range(len(self.dots)):
             self.dots.pop(0).remove()
-            
+
+        for i in range(len(self.vsfreq_curves)):
+            self.vsfreq_curves.pop(0).remove()
+    
         for i in range(len(nodeZ)-1):
             if self.net.element_array[i].orientation==0:
                 curve_data=ConstImpedCurve(nodeZ[i],nodeZ[i+1],100)
@@ -183,14 +205,27 @@ class MainWindow(Tk.Frame):
                 curve_data=ConstAdmitCurve(nodeZ[i],nodeZ[i+1],100)
                 self.curves.extend(self.mainplot.plot(curve_data[0],curve_data[1],lw=3,color='b'))
 
+
+        vsfreq_curve=[]
+        for freq in SSS(self.settings['lowerfreq'],self.settings['upperfreq'],self.settings['stepsize']):
+            gam=ZtoGamma(self.net.compute_node_impedances(freq)[-1])
+            vsfreq_curve.append([gam.real,gam.imag])
+
+        #print vsfreq_curve
+        vsfreq_curve=zip(*vsfreq_curve)
+        self.vsfreq_curves.extend(self.mainplot.plot(vsfreq_curve[0],vsfreq_curve[1],lw=2,color='k',linestyle='--'))
+
+        
+        if selection!=None:
+            self.curves[selection].set_color('g')
+
         for i in range(len(nodeZ)):
             Gam=ZtoGamma(nodeZ[i])
             #print Gam
             self.dots.extend(self.mainplot.plot(Gam.real,Gam.imag,'or'))
 
-        self.pltcanvas.draw()
 
-        print "draw_plot()"
+        self.pltcanvas.draw()
 
 
 if __name__=='__main__':
@@ -199,6 +234,7 @@ if __name__=='__main__':
 
     
     root=Tk.Tk()
+    root.configure(background='white')
     root.wm_title("Impedance Matching Tool")
     
     a=MainWindow(root)
