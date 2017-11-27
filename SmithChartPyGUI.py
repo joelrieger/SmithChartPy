@@ -64,42 +64,33 @@ class MainWindow(Tk.Frame):
 
         #COMPONENT CONTROL BUTTON FRAMES (i.e. delete, edit)
         CmpCntrl = Tk.Frame()
-        CmpCntrl.grid(row=1,column=0,padx=5,pady=5,sticky=Tk.S)
-        #button_del=Tk.Button(CmpCntrl,width=10,text="Delete",command=self.delete_element)
-        #button_del.grid(row=2,column=0,padx=5,pady=1)
-        #button_edit=Tk.Button(CmpCntrl,width=10,text="Edit",command=self.edit_element)
-        #button_edit.grid(row=2,column=1,padx=5,pady=1)
-        #button1=Tk.Button(CmpCntrl,text="Settings",command=self.edit_element)
-        #button1.grid(row=2,column=2)
+        CmpCntrl.grid(row=1,column=0,padx=5,pady=10,sticky=Tk.S)
+        button_del=Tk.Button(CmpCntrl,width=10,text="Delete",command=self.delete_element)
+        button_del.grid(row=2,column=0,padx=5,pady=1)
+        button_edit=Tk.Button(CmpCntrl,width=10,text="Edit",command=self.edit_element)
+        button_edit.grid(row=2,column=1,padx=5,pady=10)
 
         #PALETTE FRAME
         #Palette = Tk.Frame(root)
         #Palette.grid(row=1,column=0)
 
         ser_c_icon=Tk.PhotoImage(file="./icons/button_Cse.gif")
-        button_ser_c=Tk.Button(CmpCntrl,image=ser_c_icon,command=self.add_series_c)#command=self.add_series_c,image=series_c_photo
+        #button_ser_c=Tk.Button(CmpCntrl,image=ser_c_icon,command=self.add_series_c)#command=self.add_series_c,image=series_c_photo
+        button_ser_c=Tk.Button(CmpCntrl,width=10,text="Series C",command=self.add_series_c)#command=self.add_series_c,image=series_c_photo
         button_ser_c.grid(row=0,column=0)
-        
-        #button2=Tk.Button(CmpCntrl,width=10,text="ShuntC", command=self.add_shunt_c)
-        #button2.grid(row=0,column=1)
-        #button3=Tk.Button(CmpCntrl,width=10,text="SeriesL", command=self.add_series_l)
-        #button3.grid(row=1,column=0)
-        #button4=Tk.Button(CmpCntrl,width=10,text="ShuntL", command=self.add_shunt_l)
-        #button4.grid(row=1,column=1)
-        #CmpCntrl.config(background="white")
+        button2=Tk.Button(CmpCntrl,width=10,text="Shunt C", command=self.add_shunt_c)
+        button2.grid(row=0,column=1)
+        button3=Tk.Button(CmpCntrl,width=10,text="Series L", command=self.add_series_l)
+        button3.grid(row=1,column=0)
+        button4=Tk.Button(CmpCntrl,width=10,text="Shunt L", command=self.add_shunt_l)
+        button4.grid(row=1,column=1)
+        CmpCntrl.config(background="white")
         
         #PLOT FRAME
         PlotFrame = Tk.Frame()
         PlotFrame.grid(row=1,column=1)
         self.pltcanvas = FigureCanvasTkAgg(fig, master=PlotFrame)
         self.pltcanvas.get_tk_widget().grid(row=1,column=1)
-        
-        ##NavigationToolbar2TkAgg uses pack internally, so grid cannot be used
-        ##Frame used to get around this.
-        #NavBarFrame=Tk.Frame(root)
-        #NavBarFrame.grid(row=2,column=1,sticky=Tk.W)
-        #plttoolbar = NavigationToolbar2TkAgg(pltcanvas, NavBarFrame)
-        #plttoolbar.pack()
 
         self.net=network()
         

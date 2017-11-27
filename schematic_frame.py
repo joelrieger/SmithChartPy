@@ -42,7 +42,7 @@ class SchematicFrame(Tk.Frame):
         self.item_arr=[] #contains canvas item index
         self.item_positions=[]
         
-        self.canvas1 = Tk.Canvas(parent,width=900, height=150)#,scrollregion=(0,0,1000,150)
+        self.canvas1 = Tk.Canvas(parent,width=950, height=150)#,scrollregion=(0,0,1000,150)
         self.canvas1.grid(row=3,column=0,columnspan=3,sticky=Tk.W)
         self.canvas1.configure(background='white')
 
