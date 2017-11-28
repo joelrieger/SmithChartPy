@@ -1,5 +1,5 @@
 # SmithChartPy
-SmithChartPy: A Smith Chart Plotting and Matching Program
+SmithChartPy: Impedance Matching and Network Visualization Software
 
 Numerous impedance tools exist today, but all lack in numerous details that made me ask: why not write my own?
 
