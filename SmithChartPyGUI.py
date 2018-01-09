@@ -51,16 +51,21 @@ class MainWindow(Tk.Frame):
                        'LoadImpedance':50}
 
 
-        
-
+        #Menu
+        menu=Tk.Menu(self.master)
+        self.master.config(menu=menu)
+        File=Tk.Menu(menu)
+        menu.add_cascade(label="File",menu=File)
+        menu.add_cascade(label="Plotting",menu=File)
+        menu.add_cascade(label="Settings",menu=File)
+        menu.add_cascade(label="Help",menu=File)
         
         #SLIDER FRAME
-        Slider_Frame=Tk.Frame(root,bg='white')
-        Slider_Frame.grid(row=0,column=0)
+        Slider_Frame=Tk.Frame(root)
+        Slider_Frame.grid(row=0,column=0,sticky=Tk.S)
         
         slider_canvas=Tk.Canvas(Slider_Frame)
         slider=SliderFrame(slider_canvas,self.callback)
-        slider.grid(row=0,column=0,sticky=Tk.N)
 
         #COMPONENT CONTROL BUTTON FRAMES (i.e. delete, edit)
         CmpCntrl = Tk.Frame()
@@ -69,10 +74,6 @@ class MainWindow(Tk.Frame):
         button_del.grid(row=2,column=0,padx=5,pady=1)
         button_edit=Tk.Button(CmpCntrl,width=10,text="Edit",command=self.edit_element)
         button_edit.grid(row=2,column=1,padx=5,pady=10)
-
-        #PALETTE FRAME
-        #Palette = Tk.Frame(root)
-        #Palette.grid(row=1,column=0)
 
         ser_c_icon=Tk.PhotoImage(file="./icons/button_Cse.gif")
         #button_ser_c=Tk.Button(CmpCntrl,image=ser_c_icon,command=self.add_series_c)#command=self.add_series_c,image=series_c_photo
@@ -85,7 +86,7 @@ class MainWindow(Tk.Frame):
         button4=Tk.Button(CmpCntrl,width=10,text="Shunt L", command=self.add_shunt_l)
         button4.grid(row=1,column=1)
         CmpCntrl.config(background="white")
-        
+
         #PLOT FRAME
         PlotFrame = Tk.Frame()
         PlotFrame.grid(row=1,column=1)
@@ -93,7 +94,7 @@ class MainWindow(Tk.Frame):
         self.pltcanvas.get_tk_widget().grid(row=1,column=1)
 
         self.net=network()
-        
+
         L1=ind(0.80e-9)
         C1=cap(6.3e-12,shunt=1)    
         L2=ind(2.0e-9)
@@ -107,8 +108,6 @@ class MainWindow(Tk.Frame):
         self.net.element_array.append(L3)
 
         #TEST CASE -- matching 50.0 Ohms to ~5.0 Ohms at 2 GHz
-
-
         #SCHEMATIC FRAME
         self.im_size=100
         SchemFrame = Tk.Frame(root)
@@ -136,9 +135,8 @@ class MainWindow(Tk.Frame):
                 #print i,kargs['values']['cur']
                 #self.Schem.draw_schematic()
                 self.draw_plot(selection=i)
-        
-            
-                
+
+
     def test(self,event):
         print "OK"
         
