@@ -62,28 +62,9 @@ class SliderFrame(Tk.Canvas):
 
         self.canvas1.itemconfigure(self.valuetext,text=str(self.values['cur'])+' '+self.values['unit'])
         
-        #self.canvas1.focus_set()
-        #self.move_slider_value(self.values['cur'])
-        
-
     def update_slider_position(self):
         self.move_slider_value(self.values['cur'])
-    
-    #def set_value(self,va):
-        
-
-    #def up(self,*args):
-    #    distance=-10
-    #    x1,y1,x2,y2=self.canvas1.coords(self.slider)
-    #    if ((y1 <= (450+distance))&( y1 >=(50-distance))):
-    #            self.canvas1.move(self.slider,0,distance)
-
-    #def down(self,*args):
-    #    distance=10
-    #    x1,y1,x2,y2=self.canvas1.coords(self.slider)
-    #    if ((y1 <= (450+distance))&(y1 >= (50-distance))):
-    #            self.canvas1.move(self.slider,0,distance)
-        
+      
     def slider_active(self,*args):
         if self.slider_state==False:
             self.box=self.canvas1.create_rectangle(35,45,65,455,width=1,dash='.')
@@ -150,3 +131,23 @@ class SliderFrame(Tk.Canvas):
         self.canvas1.move(self.slider,0,self.coord_from_val(val)-y1)
         
         #self.update_slider()
+
+if __name__=='__main__':
+
+    class MainWindow(Tk.Frame):
+        def __init__(self,parent):
+            Tk.Frame.__init__(self,parent)
+
+            #SLIDER FRAME
+            Slider_Frame=Tk.Frame(root)
+            Slider_Frame.grid(row=0,column=0)
+            
+            slider_canvas=Tk.Canvas(Slider_Frame)
+            slider=SliderFrame(slider_canvas,self.callback)
+
+        def callback(self,**kargs):
+            print kargs
+            
+    root = Tk.Tk()
+    a=MainWindow(root)
+    root.mainloop()

@@ -39,9 +39,6 @@ class MainWindow(Tk.Frame):
 
         parent.bind('<Up>',self.test)
 
-        #fig.draw(0)
-
-        #Settings Not Used YEt
         self.settings={'centerfreq':2.0e9,
                        'lowerfreq':1.5e9,
                        'upperfreq':2.5e9,
@@ -49,7 +46,6 @@ class MainWindow(Tk.Frame):
                        'SmithImpedance':50.0,
                        'InputImpedance':50,
                        'LoadImpedance':50}
-
 
         #Menu
         menu=Tk.Menu(self.master)
@@ -193,7 +189,6 @@ class MainWindow(Tk.Frame):
             elif self.net.element_array[i].orientation==1:
                 curve_data=ConstAdmitCurve(nodeZ[i],nodeZ[i+1],100)
                 self.curves.extend(self.mainplot.plot(curve_data[0],curve_data[1],lw=3,color='b'))
-
 
         vsfreq_curve=[]
         for freq in SSS(self.settings['lowerfreq'],self.settings['upperfreq'],self.settings['stepsize']):
