@@ -55,12 +55,13 @@ class SliderFrame(Tk.Canvas):
 
         if 'values' in kargs:
             self.values=kargs['values']
-            
+        self.canvas1.itemconfigure(self.valuetext,text=str("%.2f"%self.values['cur'])+' '+self.values['unit'])
+        
         self.highvar.set(str(self.values['max'])+' '+self.values['unit'])
         self.elemvar.set(str(self.values['cur'])+' '+self.values['unit'])
         self.lowvar.set(str(self.values['min'])+' '+self.values['unit'])
 
-        self.canvas1.itemconfigure(self.valuetext,text=str(self.values['cur'])+' '+self.values['unit'])
+        print "update_slide()", self.values['cur']
         
     def update_slider_position(self):
         self.move_slider_value(self.values['cur'])
@@ -118,7 +119,7 @@ class SliderFrame(Tk.Canvas):
                 
             self.update_slider()
 
-            self.callback(values={'cur':self.values['cur']-1})
+            self.callback(values={'cur':self.values['cur']})
     
     
     def move_slider_value(self,val):
